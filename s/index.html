@@ -8,6 +8,17 @@
 <body class="sidebar-mini">
     <div class="wrapper" style="min-height: 370px">
         <div id='sidebar_placeholder'></div>
+        <div id='load'>
+                <br><br>
+                <br><br>
+                <br><br>
+                <br><br>
+                <br><br>
+                <br><br>
+                <br><br>
+                <br><br>
+                <center><img class="collapse show" height="200px" width="200px" src="/clinical-ui/assets/img/loading.gif?3"></center>
+        </div>
         <div class="main-panel">
             <!-- Navbar -->
             <div id="nav_template"></div>
@@ -15,24 +26,24 @@
             <div class="content" style="margin-top: -20px">
                 <div class="container-fluid">
                     <div class="row" style="margin-bottom: 5px">
-                        <div class="col-lg-3 col-sm-6" id="collection_stat_template">
+                        <div class="col-lg-3 col-sm-6" id="participant_stat_template">
                         </div>
-                        <div class="col-lg-3 col-sm-6" id="dataset_stat_template">
+                        <div class="col-lg-3 col-sm-6" id="organ_stat_template">
                         </div>
-                        <div class="col-lg-3 col-sm-6" id="file_stat_template">
+                        <div class="col-lg-3 col-sm-6" id="specimen_stat_template">
                         </div>
-                        <div class="col-lg-3 col-sm-6" id="favorite_stat_template">
+                        <div class="col-lg-3 col-sm-6" id="genomic_stat_template">
                         </div>
                     </div>
 		    <div class="row">
                         <div class="col-md-4">
                             <div class="card ">
                                 <div class="card-header" style="padding:0; padding-left: 5px">
-                                    <h4 class="card-title"><div id="datasettitle"></div></h4>
-                                     <p class="card-category">Collections by Organ</p>
+                                    <h4 class="card-title"><div id="orgtitle"></div></h4>
+                                     <p class="card-category">Organs by Site</p>
                                 </div>
                                 <div class="card-body" style="padding:0; padding-left: 5px">
-                                            <div id="organ_distribution"/>
+                                            <div id="org_filters"/>
 
                                 </div>
                             </div>
@@ -41,11 +52,11 @@
 			<div class="col-md-4">
                             <div class="card ">
                                 <div class="card-header" style="padding:0; padding-left: 5px">
-                                    <h4 class="card-title"><div id="datasettitle"></div></h4>
-                                     <p class="card-category"># Files by Lead PI</p>
+                                    <h4 class="card-title"><div id="pretitle"></div></h4>
+                                     <p class="card-category"># BioSpecimens per Precancer Types</p>
                                 </div>
                                 <div class="card-body" style="padding:0; padding-left: 5px">
-                                            <div id="labcas_boxplot_distribution"/>
+                                            <div id="pre_filters"/>
                                 </div>
                             </div>
                           </div>
@@ -53,11 +64,11 @@
 			<div class="col-md-4">
                             <div class="card ">
                                 <div class="card-header" style="padding:0; padding-left: 5px">
-                                    <h4 class="card-title"><div id="datasettitle"></div></h4>
-                                     <p class="card-category"># Files per File Type</p>
+                                    <h4 class="card-title"><div id="racetitle"></div></h4>
+                                     <p class="card-category"># Participants per Race</p>
                                 </div>
                                 <div class="card-body" style="padding:0; padding-left: 5px">
-                                           <div id="labcas_filetype_distribution"/>
+                                           <div id="race_filters"/>
                                  </div>
                             </div>
                           </div>
@@ -81,81 +92,79 @@
                         <div class="col-md-9 ml-auto mr-auto">
 				<div class="card card-tasks">
 					<div class="card-header ">
-						<h4 class="card-title">Collection Search Results</h4>
+						<h4 class="card-title">Site/Institution Search Results</h4>
 					</div>
 					<div class="card-body">
 						<div id="icon-info">
-							<ul class="pagination pagination-no-border" id='collections_search_pagination_top' style="float: right;"></ul>
+                            <!--<ul class="pagination pagination-no-border" id='collections_search_pagination_top' style="float: right;"></ul>-->
 							<div class="table-full-width">
-								<table class="table" id="search-collection-table">
-								 <thead>
-								    <th data-field="collection" data-sortable="true">Collection</th>
-								    <th data-field="organ" data-sortable="false">Organ</th>
-								    <th data-field="discipline" data-sortable="true" data-visible="false">Discipline</th>
-								    <th data-field="institution" data-sortable="true" data-visible="true">Institution</th>
-								    <th data-field="leadpi" data-sortable="true">Lead PI</th>
-								    <th data-field="actions" class="td-actions" data-events="operateEvents" data-formatter="">Actions</th>
-								</thead>
-								<tbody>
-									<center><img id="loading_collection" class="collapse show" height="50px" width="50px" src="/clinical-ui/assets/img/loading.gif"></center>
-								</tbody>
-							</table>
-						</div>
-						<ul class="pagination pagination-no-border" id='collections_search_pagination_bottom' style="float: right;"></ul>
+                                 <table id="collection-table" class="table" data-step=8 data-intro='Labcas list of collections'>
+                                        <thead>
+                                            <th data-field="state"></th>
+                                            <th data-field="site" data-sortable="true">Site</th>
+                                            <th data-field="institution" data-sortable="true">Institution</th>
+                                            <th data-field="organ" data-sortable="false"># Organs</th>
+                                            <th data-field="participant" data-sortable="true" data-visible="true"># of Participants</th>
+                                            <th data-field="specimen" data-sortable="true" data-visible="true"># of Specimens</th>
+                                            <th data-field="labcasfile" data-sortable="true">LabCAS Data</th>
+                                            <th data-field="actions" class="td-actions text-right" data-events="operateEvents" data-formatter="">Actions</th>
+                                        </thead>
+                                        <tbody>
+                            <center><img id="loading" class="collapse show" height="50px" width="50px" src="/clinical-ui/assets/img/loading.gif"></center>
+                                        </tbody>
+                                    </table>
+
+                            </div>
+                            <!--<ul class="pagination pagination-no-border" id='collections_search_pagination_bottom' style="float: right;"></ul>-->
 					</div>
 					
 				</div>
 			</div>
 			<div class="card card-tasks">
 				<div class="card-header ">
-					<h4 class="card-title">Dataset Search Results</h4>
+					<h4 class="card-title">Participant Search Results</h4>
 				</div>
 				<div class="card-body">
 					<div id="icon-account">
-						<ul class="pagination pagination-no-border" id='datasets_search_pagination_top' style="float: right;"></ul>
+                        <!--<ul class="pagination pagination-no-border" id='datasets_search_pagination_top' style="float: right;"></ul>-->
 						<div class="table-full-width">
-							<table class="table" id="search-dataset-table" style="table-layout: fixed;">
-								 <thead>
-								    <th data-field="dataset" data-sortable="true">Dataset</th>
-								    <th data-field="collection" data-sortable="true">Collection</th>
-								    <th data-field="actions" class="td-actions" data-events="operateEvents" data-formatter="">Actions</th>
-								</thead>
-								<tbody>
-									<center><img id="loading_dataset" class="collapse show" height="50px" width="50px" src="/clinical-ui/assets/img/loading.gif"></center>
-								</tbody>
-							</table>
+                                     <table id="participant-table" class="table" data-step=8 data-intro='Labcas list of collections'>
+                                        <thead>
+                                            <th data-field="state"></th>
+                                            <th data-field="id" data-sortable="true">ParticipantID</th>
+                                            <th data-field="clesiontype" data-sortable="false">Current Lesion Type</th>
+                                            <th data-field="age" data-sortable="true" data-visible="true">Age of Dx</th>
+                                            <th data-field="year" data-sortable="true" data-visible="true">Year of Dx</th>
+                                            <th data-field="lesiontype" data-sortable="true">Lesion Type</th>
+                                            <th data-field="specimen" data-sortable="true">Specimen Collected</th>
+                                            <th data-field="biomarker" data-sortable="true">Biomarker Tested</th>
+                                            <th data-field="labcaslink" data-sortable="true">Labcas Files</th>
+                                            <th data-field="actions" class="td-actions text-right" data-events="operateEvents" data-formatter="">Actions</th>
+                                        </thead>
+                                        <tbody>
+                            <center><img id="participant-loading" class="collapse show" height="50px" width="50px" src="/clinical-ui/assets/img/loading.gif"></center>
+                                        </tbody>
+                                    </table>
 						</div>
-						<ul class="pagination pagination-no-border" id='datasets_search_pagination_bottom' style="float: right;"></ul>
+                        <!--<ul class="pagination pagination-no-border" id='datasets_search_pagination_bottom' style="float: right;"></ul>-->
 					</div>
 				</div>
 			</div>
 			<div class="card card-tasks">
 				<div class="card-header ">
-					<h4 class="card-title">Files Search Results</h4>
+					<h4 class="card-title">Specimen Search Results</h4>
 					<p class="card-category">Explore</p>
 				</div>
 				<div class="card-body">
-				<button type="submit" onclick="download_files('search-file-table');" class="btn btn-primary">Download</button>
+                    <!--<button type="submit" onclick="download_files('search-file-table');" class="btn btn-primary">Download</button>-->
 				<div id="icon-style">
-					<ul class="pagination pagination-no-border" id='files_search_pagination_top' style="float: right;"></ul>
+                    <!--<ul class="pagination pagination-no-border" id='files_search_pagination_top' style="float: right;"></ul>-->
 					<div class="table-full-width">
-						<table class="table" id="search-file-table" style="table-layout: fixed;">
-							 <thead>                                                        
-							    <th>Select</th>
-							    <th data-field="file" data-sortable="true">File</th>
-							    <th data-field="type" data-sortable="true">Type</th>
-							    <th data-field="type" data-sortable="true">Site</th>
-							    <th data-field="description" data-sortable="true">Description</th>
-							    <th data-field="thumb" data-sortable="true">Thumb</th>
-							    <th data-field="size" data-sortable="true">Size</th>
-							    <th data-field="actions" class="td-actions" data-events="operateEvents" data-formatter="">Actions</th>
-							</thead>
-						<tbody>
-							<center><img id="loading_file" class="collapse show" height="50px" width="50px" src="/clinical-ui/assets/img/loading.gif"></center>
-						</tbody>
-					</table>
-				</div>
-				<ul class="pagination pagination-no-border" id='files_search_pagination_bottom' style="float: right;"></ul>
+                          <div id="specimen_div">
+                            <center><img id="loading_dataset" class="collapse show" height="50px" width="50px" src="/clinical-ui/assets/img/loading.gif"></center>
+                        </div>
+                    </div>
+                    <!--<ul class="pagination pagination-no-border" id='files_search_pagination_bottom' style="float: right;"></ul>-->
 			</div>
 		</div>
 		</div>
@@ -219,14 +228,29 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script src="/clinical-ui/assets/js/labcas/dashboard_search.js?2"></script>
 <script type="text/javascript">
+    document.onreadystatechange = function () {
+          var state = document.readyState
+          if (state == 'interactive') {
+               document.getElementById('main-panel').style.visibility="hidden";
+          } else if (state == 'complete') {
+              setTimeout(function(){
+                 document.getElementById('load').style.display="none";
+                 document.getElementById('main-panel').style.visibility="visible";
+              },1000);
+          }
+        }
+
 	$( "#head_template" ).load("/clinical-ui/templates.html #head_template");
-        $( "#favorite_stat_template" ).load("/clinical-ui/templates.html #favorite_stat_template");
-        $( "#file_stat_template" ).load("/clinical-ui/templates.html #file_stat_template");
-        $( "#dataset_stat_template" ).load("/clinical-ui/templates.html #dataset_stat_template");
-        $( "#collection_stat_template" ).load("/clinical-ui/templates.html #collection_stat_template");
+            $( "#genomic_stat_template" ).load("/clinical-ui/templates.html #genomic_stat_template");
+    $( "#participant_stat_template" ).load("/clinical-ui/templates.html #participant_stat_template");
+    $( "#organ_stat_template" ).load("/clinical-ui/templates.html #organ_stat_template");
+    $( "#specimen_stat_template" ).load("/clinical-ui/templates.html #specimen_stat_template");
 
         $( "#footer_template" ).load("/clinical-ui/templates.html #footer_template");
         $( "#sidebar_placeholder" ).load("/clinical-ui/sidebar.html?8", );
+
+    var $table = $('#collection-table');
+    var $participant_table = $('#participant-table');
 
     $(document).ready(function() {
 	initCookies();
@@ -235,6 +259,7 @@
         });
 
 	initiate_search();
+    setup_labcas_analytics();
 		
     });
 </script>

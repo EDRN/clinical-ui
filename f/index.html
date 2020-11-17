@@ -37,7 +37,7 @@
                                     <div class="toolbar">
                                     </div>
 
-                                    <table id="collection-table" class="table" data-step=8 data-intro='Labcas list of collections'>
+                                    <table id="participant-table" class="table" data-step=8 data-intro='Labcas list of collections'>
                                         <thead>
                                             <th data-field="state"></th>
                                             <th data-field="id" data-sortable="true">ParticipantID</th>
@@ -51,7 +51,7 @@
                                             <th data-field="actions" class="td-actions text-right" data-events="operateEvents" data-formatter="">Actions</th>
                                         </thead>
                                         <tbody>
-							<center><img id="loading" class="collapse show" height="50px" width="50px" src="/clinical-ui/assets/img/loading.gif"></center>
+							<center><img id="participant-loading" class="collapse show" height="50px" width="50px" src="/clinical-ui/assets/img/loading.gif"></center>
                                         </tbody>
                                     </table>
                                 </div>
@@ -115,7 +115,7 @@
 <script src="/clinical-ui/assets/js/intro.js?101"></script>
 <script type="text/javascript">
     
-    var $table = $('#collection-table');
+    var $participant_table = $('#participant-table');
     function operateFormatter(value, row, index) {
         return [
             '<a rel="tooltip" title="Favorite" class="btn btn-link btn-info table-action view" href="javascript:void(0)">',

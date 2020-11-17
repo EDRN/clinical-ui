@@ -167,8 +167,8 @@
 
 
         var get_var = get_url_vars();
-        Cookies.set("login_redirect", "/clinical-ui/c/index.html?collection_id="+get_var["collection_id"]);
-        setup_labcas_detail(get_var["participant_id"]);
+        Cookies.set("login_redirect", "/clinical-ui/m/index.html");
+        setup_biospecimen_site_data(get_var["participant_id"]);
         $("#breadcrumb_participant").html(get_var["participant_id"]);
         $("#breadcrumb_site").html("<a href='/clinical-ui/f/index.html?site_id="+get_var["site_id"]+"&organ_id="+get_var["organ_id"]+"'>"+get_var["site_id"]+ " + " + get_var["organ_id"]+"</a>");
     });

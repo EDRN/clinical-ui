@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="eaa63020-72a9-4ff9-90cf-5c0606c203dc" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/a/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/a/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/conf/environment.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/conf/environment.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/img/loading.gif" beforeDir="false" afterPath="$PROJECT_DIR$/assets/img/loading.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js/labcas/authentication.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/js/labcas/authentication.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js/labcas/dashboard_search.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/js/labcas/dashboard_search.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js/labcas/login.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/js/labcas/login.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/c/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/d/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/d/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/f/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/f/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/m/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/m/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/s/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/s/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates.html" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1kMRYIxbLuheLgsx4yQheMHRVLA" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="eaa63020-72a9-4ff9-90cf-5c0606c203dc" name="Default Changelist" comment="" />
+      <created>1605508520331</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1605508520331</updated>
+      <workItem from="1605508521985" duration="11980000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

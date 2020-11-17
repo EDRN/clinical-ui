@@ -18,11 +18,11 @@ Array.prototype.unique = function() {
 }
 function initiate_search(){
       var get_var = get_url_vars();
-	if(localStorage.getItem("search")){
-        	localStorage.setItem("search", get_var["search"]);
-	}else{
-		localStorage.setItem("search", "*");
-	}
+        if(localStorage.getItem("search")){
+            localStorage.setItem("search", get_var["search"]);
+        }else{
+            localStorage.setItem("search", "*");
+        }
         $.each(localStorage.getItem("filters").split(","), function(ind, head) {
                 var divs = localStorage.getItem(head+"_filters_div").split(",");
                 $.each(divs, function(i, divhead) {
@@ -45,7 +45,6 @@ function initiate_search(){
         });
 
         setup_labcas_search(localStorage.getItem("search"), "all", 0);
-        $("#collection_favorites_len").html(user_data['FavoriteFiles'].length+user_data['FavoriteDatasets'].length+user_data['FavoriteCollections'].length);
 }
 
 function fill_collections_public_data(data){
@@ -125,10 +124,12 @@ function fill_collections_public_data(data){
         $table.bootstrapTable('resetView');
     });
 }
-function fill_clinicalcore_site(data, query_site, query_organ){
+function fill_clinicalcore_participant(data, query_site, query_organ){
 	//data.response.docs.sort(dataset_compare_sort);
     clinicalcore_dict = {};
     console.log(data);
+    var organ_list  = {};
+    var clinicalcore_count = 0;
     $.each(data, function(index, obj) {
         console.log(obj);
     	var color = "btn-info";
@@ -144,12 +145,12 @@ function fill_clinicalcore_site(data, query_site, query_organ){
             organ = obj_org.organType;
             return;
         });
-        console.log("TESTEST");
-        console.log(organ);
-
         var site = obj.siteID? obj.siteID: "None";
-        if (site == query_site && organ == query_organ){
-          $("#collection-table tbody").append(
+        if (!query_site || (site == query_site && organ == query_organ)){
+          if (localStorage.getItem("search_flag") != "true" || JSON.stringify(obj).includes(localStorage.getItem("search"))){
+          clinicalcore_count += 1;
+          organ_list[organ] = 1;
+          $("#participant-table tbody").append(
             "<tr>"+
                 "<td></td><td>"+
                 "<a href=\"/clinical-ui/c/index.html?participant_id="+
@@ -161,17 +162,23 @@ function fill_clinicalcore_site(data, query_site, query_organ){
                 "<td>"+obj.lesion_type+"</td>"+
                 "<td>"+obj.specimen_collected+"</td>"+
                 "<td>"+obj.biomarker_tested+"</td>"+
-                "<td><button type='submit' onclick='window.location.replace(\"https://mcl-labcas.jpl.nasa.gov/labcas-ui/d/index.html?dataset_id=PCA_Pilot_Data/Smart_3Seq_RNA_Sequencing/University_of_Vermont_Smart3Seq_Data\")' class='btn btn-primary'>Labcas File</button></td>"+
+                "<td><button type='submit' onclick='window.location.replace(\"https://mcl-labcas.jpl.nasa.gov/labcas-ui/d/index.html?dataset_id=PCA_Pilot_Data/Smart_3Seq_RNA_Sequencing/University_of_Vermont_Smart3Seq_Data\")' class='btn btn-primary'>Genomic File(s)</button> &nbsp;&nbsp;" +
+              "<button type='submit' onclick='window.location.replace(\"https://mcl-labcas.jpl.nasa.gov/labcas-ui/d/index.html?dataset_id=PCA_Pilot_Data/Smart_3Seq_RNA_Sequencing/University_of_Vermont_Smart3Seq_Data\")' class='btn btn-info'>Image File(s)</button>" +
+              "</td>"+
                 "<td class=\"td-actions\">"+
 						"<button type=\"button\" rel=\"tooltip\" title=\"Favorite\" onclick=\"save_favorite('"+site+"', 'FavoriteCollections')\" class=\"btn "+color+" btn-simple btn-link\">"+
 							"<i class=\"fa fa-star\"></i>"+
 						"</button>"+
 					"</td>"+
             "</tr>");
+            
+         }
          }
     });
-    $('#loading').hide(500);
-    $table.bootstrapTable({
+    $('#participant_len').html(clinicalcore_count);
+    $('#organ_len').html(Object.keys(organ_list).length);
+    $('#participant-loading').hide(500);
+    $participant_table.bootstrapTable({
             toolbar: ".toolbar",
             clickToSelect: true,
             showRefresh: true,
@@ -205,6 +212,35 @@ function fill_clinicalcore_site(data, query_site, query_organ){
         $table.bootstrapTable('resetView');
     });
 }
+
+function fill_clinicalcore_search(data){
+    //filter search results before sending to populating function
+    var search = localStorage.getItem("search");
+    if (search == "*"){
+        localStorage.setItem("search_flag", "false");
+    }else{
+        localStorage.setItem("search_flag", "true");
+    }
+    fill_clinicalcore_data(data);
+}
+function search_site_data(site, site_name, inst_name, organ){
+    var search_flag = false;
+    if ( localStorage.getItem("search_flag") != "true" || site_name.includes(localStorage.getItem("search")) || inst_name.includes(localStorage.getItem("search"))
+        || organ.includes(localStorage.getItem("search")) || site.includes(localStorage.getItem("search"))){
+        search_flag = true;
+    }
+    if (localStorage.getItem("site_filters_val") && JSON.parse(localStorage.getItem("site_filters_val")).length > 0) {
+        if (localStorage.getItem("search") == "" || localStorage.getItem("search") == "*" ) {
+            search_flag = false;
+        }
+        if (JSON.parse(localStorage.getItem("site_filters_val")).includes(site_name)){
+            search_flag = true;
+        }
+    }
+
+    return search_flag;
+}
+
 function fill_clinicalcore_data(data){
 	//data.response.docs.sort(dataset_compare_sort);
     clinicalcore_dict = {};
@@ -256,25 +292,34 @@ function fill_clinicalcore_data(data){
 
     });
 
+    search_ksdb_inst_site_data(Object.keys(clinicalcore_dict));
+
+
     $.each(clinicalcore_dict, function(site, site_obj) {
-        $.each(site_obj, function(organ, obj) {
-              $("#collection-table tbody").append(
-                "<tr>"+
-                    "<td><a href=\"/clinical-ui/f/index.html?site_id="+
-                        site+"&organ_id="+organ+"\">"+"<i class='fa fa-play'></i></td><td>"+
-                    "<div class='site"+site+"'></div></td>"+
-                    "<td><div class='inst"+site+"'></div></td>"+
-                    "<td>"+organ+"</td>"+
-                    "<td>"+obj["participant_count"]+"</td>"+
-                    "<td>"+obj["specimen_count"]+"</td>"+
-                    "<td><button type='submit' onclick='window.location.replace(\""+obj["labcas_file"]+"\")' class='btn btn-primary'>Labcas File</button></td>"+
-                    "<td class=\"td-actions\">"+
-                            "<center><button type=\"button\" rel=\"tooltip\" title=\"Favorite\" onclick=\"save_favorite('"+site+"', 'FavoriteCollections')\" class=\"btn "+obj["color"]+" btn-simple btn-link\">"+
-                                "<i class=\"fa fa-star\"></i>"+
-                            "</button></center>"+
-                        "</td>"+
-                "</tr>");
-        });
+            var site_name = localStorage.getItem("site"+site);
+            var inst_name = localStorage.getItem("inst"+site);
+            $.each(site_obj, function(organ, obj) {
+                  var search_flag = search_site_data(site, site_name, inst_name, organ);
+
+                  if (search_flag){
+                      $("#collection-table tbody").append(
+                        "<tr>"+
+                            "<td><a href=\"/clinical-ui/f/index.html?site_id="+
+                                site+"&organ_id="+organ+"\">"+"<i class='fa fa-play'></i></td><td>"+
+                            "<div class='site"+site+"'></div></td>"+
+                            "<td><div class='inst"+site+"'></div></td>"+
+                            "<td>"+organ+"</td>"+
+                            "<td>"+obj["participant_count"]+"</td>"+
+                            "<td>"+obj["specimen_count"]+"</td>"+
+                            "<td><button type='submit' onclick='window.location.replace(\""+obj["labcas_file"]+"\")' class='btn btn-primary'>Labcas Dataset</button></td>"+
+                            "<td class=\"td-actions\">"+
+                                    "<center><button type=\"button\" rel=\"tooltip\" title=\"Favorite\" onclick=\"save_favorite('"+site+"', 'FavoriteCollections')\" class=\"btn "+obj["color"]+" btn-simple btn-link\">"+
+                                        "<i class=\"fa fa-star\"></i>"+
+                                    "</button></center>"+
+                                "</td>"+
+                        "</tr>");
+                 }
+            });
     });
 
     include_ksdb_inst_site_data(Object.keys(clinicalcore_dict));
@@ -314,8 +359,30 @@ function fill_clinicalcore_data(data){
         $table.bootstrapTable('resetView');
     });
 }
-function include_ksdb_inst_site_data(siteids){
+function search_ksdb_inst_site_data(siteids){
     $.ajax({
+        url: localStorage.getItem('ksdb_institution_site_api'),
+        type: 'GET',
+        success: function (data) {
+            data = JSON.parse(data);
+            $.each(siteids, function(i, site) {
+                localStorage.setItem("site"+site, data[site][1]);
+                localStorage.setItem("inst"+site, data[site][0]);
+                generate_biospecimen_site_facets(data[site][1]);
+            });
+
+        },
+        error: function(e){
+            if (!(localStorage.getItem("logout_alert") && localStorage.getItem("logout_alert") == "On")){
+               localStorage.setItem("logout_alert","On");
+                alert("You are currently logged out. Redirecting you to log in.");
+            }
+             //window.location.replace("/clinical-ui/index.html");
+         }
+    });
+}
+function include_ksdb_inst_site_data(siteids){
+    /*$.ajax({
         url: localStorage.getItem('ksdb_institution_site_api'),
         type: 'GET',
         success: function (data) {
@@ -335,6 +402,10 @@ function include_ksdb_inst_site_data(siteids){
              //window.location.replace("/clinical-ui/index.html");
 
          }
+    });*/
+    $.each(siteids, function(i, site) {
+        $(".site"+site).html(localStorage.getItem("site"+site));
+        $(".inst"+site).html(localStorage.getItem("inst"+site));
     });
 
 }
@@ -434,26 +505,85 @@ function fill_clinicalcore_details_data(data){
     $('#loading_metadata').hide(500);
     $('#organ_div').html(dataset_metadata_html);
 
-
+    fill_specimen_table(data.biospecimens);
+	$('#loading_collection').hide(500);    
+}
+function fill_genomic_table(data){
+    $('#genomic_len').html(data.length);
+}
+function setup_specimen_detail(specimen_id){
+    query_labcas_api(localStorage.getItem('environment')+"/specimens/"+specimen_id, setup_specimen_table);
+}
+function setup_specimen_table(data){
+    $.each(data, function(idx, obj) {
+        console.log(obj);
+        if (idx != "__mcl.sickbay.model.specimens.Biospecimen__" && idx != "genomics") {
+            $("#specimen-table tbody").append(
+                "<tr>" +
+                "<td class='text-right' valign='top' style='padding: 2px 8px;' width='20%'>" + idx + ":</td>" +
+                "<td class='text-left' valign='top' style='padding: 2px 8px;'>" +
+                obj +
+                "</td>" +
+                "</tr>");
+        }
+    });
+}
+function fill_specimen_table(data){
+    var specimen_count = 0;
     var specimen_metadata_html = "No specimen data available";
-    if (data.biospecimens){
+    if (data){
+        var get_var = get_url_vars();
         specimen_metadata_html = '<table class="table" id="metadatadetails-table" style="table-layout: fixed;"><thead><th>SpecimenID</th><th>Type</th><th>Analyte Type</th><th>Laterality</th></thead><tbody>';
-        $.each(data.biospecimens, function(key, value) {
+        $.each(data, function(key, value) {
+            
+            if(localStorage.getItem("search_flag") != "true" || JSON.stringify(value).includes(localStorage.getItem("search"))){
+                var specimen_url = "/clinical-ui/d/index.html?participant_id="+get_var["participant_id"]+"&site_id="+get_var["site_id"]+"&organ_id="+get_var["organ_id"]+"&specimen_id="+value.specimen_ID;
 
-            console.log(value);
-            value.specimen_type = value.specimen_type? value.specimen_type : "";
-            value.specimen_laterality = value.specimen_laterality? value.specimen_laterality : "";
-            value.analyte_type = value.analyte_type? value.analyte_type : "";
-            specimen_metadata_html+="<tr>"+"<td valign='top' style='padding: 2px 8px;' width='25%'>"+"<a href=\"#\">"+value.specimen_ID+"</a>"+"</td><td valign='top' style='padding: 2px 8px;' width='25%'>"+""+value.specimen_type+""+"</td><td valign='top' style='padding: 2px 8px;' width='25%'>"+""+value.analyte_type+""+"</td><td valign='top' style='padding: 2px 8px;' width='25%'>"+""+value.specimen_laterality+""+"</td>"+
-                    "</tr>"
+                value.specimen_type = value.specimen_type? value.specimen_type : "";
+                value.specimen_laterality = value.specimen_laterality? value.specimen_laterality : "";
+                value.analyte_type = value.analyte_type? value.analyte_type : "";
+                specimen_metadata_html+="<tr>"+"<td valign='top' style='padding: 2px 8px;' width='25%'>"+"<a href=\""+specimen_url+"\">"+value.specimen_ID+"</a>"+"</td><td valign='top' style='padding: 2px 8px;' width='25%'>"+""+value.specimen_type+""+"</td><td valign='top' style='padding: 2px 8px;' width='25%'>"+""+value.analyte_type+""+"</td><td valign='top' style='padding: 2px 8px;' width='25%'>"+""+value.specimen_laterality+""+"</td>"+
+                    "</tr>";
+                specimen_count += 1;
+            }
         });
         specimen_metadata_html += "</tbody></table>";
     }
     $('#loading_specimen').hide(500);
     $('#specimen_div').html(specimen_metadata_html);
+    $('#specimen_len').html(specimen_count);
+    if(data){
+        var $specimen_table = $('#metadatadetails-table');
+        $specimen_table.bootstrapTable({
+            toolbar: ".toolbar",
+            clickToSelect: true,
+            showRefresh: true,
+            search: false,
+            showToggle: true,
+            showColumns: true,
+            pagination: true,
+            searchAlign: 'left',
+            pageSize: 50,
+            clickToSelect: false,
+            pageList: [8, 10, 25, 50, 100],
 
-	$('#loading_collection').hide(500);    
+            formatShowingRows: function(pageFrom, pageTo, totalRows) {
+                //do nothing here, we don't want to show the text "showing x of y from..."
+            },
+            formatRecordsPerPage: function(pageNumber) {
+              return pageNumber + " rows visible";
+            },
+            icons: {
+               refresh: 'fa fa-refresh',
+               toggle: 'fa fa-th-list',
+               columns: 'fa fa-columns',
+               detailOpen: 'fa fa-plus-circle',
+               detailClose: 'fa fa-minus-circle'
+           }
+        });
+    }
 }
+
 function fill_dataset_details_data(data){
 	var datasetname = data.response.docs[0].DatasetName;
 	$("#datasettitle").html(datasetname);
@@ -628,7 +758,7 @@ function fill_datasets_metadata(data){
 	$('#metadata_div').html(dataset_metadata_html);
 }
 function fill_datasets_data(data){
-	
+
 	data.response.docs.sort(dataset_compare_sort);
 	var collapse_dict = {};
 	var prev_dataset_id = "";
@@ -686,7 +816,7 @@ function fill_datasets_data(data){
 					"</button>"+
 				"</div>"+
 			"</div>";
-	});                                                                     
+	});
 	if (!metadata_exists){
                 $('#collection_level_files').hide();
         }
@@ -703,11 +833,11 @@ function fill_datasets_data(data){
 			$('#'+key+'_button').hide();
 		}
 	});
-	    $("#collection_datasets_len").html(data.response.numFound); 
+	    $("#collection_datasets_len").html(data.response.numFound);
 	    $("#collection_favorites_len").html(user_data['FavoriteFiles'].length+user_data['FavoriteDatasets'].length+user_data['FavoriteCollections'].length);
 	$('#loading_dataset').hide(500);
 	$('#loading_metadata').hide(500);
-	
+
 }
 function fill_files_data(data){
 	var size = data.response.numFound;
@@ -782,7 +912,7 @@ function fill_files_data(data){
     }
 }
 
-function setup_labcas_data(datatype, query){	
+function setup_biospecimen_main_data(datatype, query){
     query_labcas_api(localStorage.getItem('environment')+"/clinicalCores", fill_clinicalcore_data);
     /*$.ajax({
         url: localStorage.getItem('environment')+"/clinicalCores",
@@ -816,7 +946,7 @@ function setup_labcas_site(datatype, query_site, query_organ){
         dataType: 'json',
         success: function (data) {
 
-                fill_clinicalcore_site(data, query_site, query_organ);
+                fill_clinicalcore_participant(data, query_site, query_organ);
 
         },
         error: function(e){
@@ -828,7 +958,7 @@ function setup_labcas_site(datatype, query_site, query_organ){
          }
     });
 }
-function setup_labcas_detail( query){
+function setup_biospecimen_site_data( query){
     $.ajax({
         url: localStorage.getItem('environment')+"/clinicalCores/"+query,
         beforeSend: function(xhr) {
@@ -837,9 +967,7 @@ function setup_labcas_detail( query){
         type: 'GET',
         dataType: 'json',
         success: function (data) {
-
                 fill_clinicalcore_details_data(data);
-
         },
         error: function(e){
             if (!(localStorage.getItem("logout_alert") && localStorage.getItem("logout_alert") == "On")){
@@ -1094,112 +1222,13 @@ function generate_filters(field_type, placeholder, data, display, head){
 
 	$("#"+placeholder).html("");
 
-	//console.log(data);
-	if (placeholder.includes("_num_")){
-		var min = 100000000;
-		var max = -1;
-		var left = 0;
-		var right = 100;
-		var sum = 0;
-		var addflag = false;
+	    console.log(data);
+
 		$.each(data, function(key, obj) {
-                    if (Number.isInteger(obj)){
-			if(addflag){
-				sum += obj;
-			}
-                    }else{
-			if(!isNaN(obj)){
-				if(min > +obj){
-					min = +obj;
-				}
-				if (max < +obj){
-					max = +obj;
-				}
-				if(((localStorage.getItem(placeholder+"_0") && localStorage.getItem(placeholder+"_0") <= +obj) || (!localStorage.getItem(placeholder+"_0")))
-					&& (localStorage.getItem(placeholder+"_1") && localStorage.getItem(placeholder+"_1") >= +obj) || (!localStorage.getItem(placeholder+"_1"))){
-					addflag = true;
-				}else{
-					addflag = false;
-				}
-			}
-                    }
-                });
-		if (min != 100000000 && max != -1){
-			if (localStorage.getItem(placeholder+"_max_0")){
-				min = localStorage.getItem(placeholder+"_max_0");
-			}else{
-				localStorage.setItem(placeholder+"_max_0", Math.floor(min));
-				left = min;
-			}
-			if (localStorage.getItem(placeholder+"_max_1")){
-				max = localStorage.getItem(placeholder+"_max_1");
-			}else{
-				localStorage.setItem(placeholder+"_max_1", Math.floor(max));
-				right = max;
-			}
-			if (localStorage.getItem(placeholder+"_0")){
-				left = localStorage.getItem(placeholder+"_0");
-			}else{
-				localStorage.setItem(placeholder+"_0", Math.floor(min));
-				left = min;
-			}
-			if (localStorage.getItem(placeholder+"_1")){
-				right = localStorage.getItem(placeholder+"_1");
-			}else{
-				localStorage.setItem(placeholder+"_1", Math.floor(max));
-				right = max;
-			}
-			$("#"+placeholder).append($('<div class="row"><div class="col-md-12" id="'+placeholder+'_count" style="text-align: center"></div></div><div class="row"><div class="col-md-2" style="text-align: left;" id="'+placeholder+'_0"></div><div class="col-md-8"><div id="'+placeholder+'_slider" class="slider-success"></div></div><div class="col-md-2"  style="text-align: right;" id="'+placeholder+'_1"></div></div>'));
-			
-			var slider = document.getElementById(placeholder+'_slider');
-
-			var slider_left = document.getElementById(placeholder+'_0');
-			var slider_right = document.getElementById(placeholder+'_1');
-			noUiSlider.create(slider, {
-			    start: [left, right],
-			    connect: true,
-			    range: {
-				min: +min,
-				max: +max
-			    },
-			    step: 1
-			});
-			document.getElementById(placeholder+'_count').innerHTML = "("+sum+")";
-			slider.noUiSlider.on('update', function (values, handle) {
-			    if (handle == 0){
-				slider_left.innerHTML = Math.floor(values[handle]);
-			    }else if(handle == 1){
-				slider_right.innerHTML = Math.floor(values[handle]);
-			    }
-			});
-			slider.noUiSlider.on('end', function (values, handle) {
-			    if (handle == 0){
-				localStorage.setItem(placeholder+"_0", Math.floor(values[handle]));
-			    }else if(handle == 1){
-				localStorage.setItem(placeholder+"_1", Math.floor(values[handle]));
-			    }
-
-			    var str_field_val = encodeURI("["+localStorage.getItem(placeholder+"_0")+" TO "+localStorage.getItem(placeholder+"_1")+"]");
-			    var field_search = "&fq="+encodeURI(escapeRegExp(field_type)).replace(/:/g,'%3A')+":"+str_field_val;
-			    if (localStorage.getItem(placeholder+"_0") == localStorage.getItem(placeholder+"_max_0") && localStorage.getItem(placeholder+"_1") == localStorage.getItem(placeholder+"_max_1")){
-				field_search = "";
-			    }
-			    localStorage.setItem(placeholder, field_search);
-			    localStorage.setItem("search_filter", "on");
-			    setup_labcas_search(localStorage.getItem('search'), "all", 0);
-			});
-			$('#'+placeholder+'_card').css("height","100px");
-		}
-
-	}else{
-		$.each(data, function(key, obj) {
-		    if (Number.isInteger(obj)){
 			counts.push(obj);
-		    }else{
-			filters.push(obj);
-		    }
+			filters.push(key);
 		});
-                var filter_count = 0;
+		var filter_count = 0;
 		$.each(filters, function(i, o){
 			if (localStorage.getItem(placeholder+"_val") && localStorage.getItem(placeholder+"_val") != ""){
 			}
@@ -1213,8 +1242,8 @@ function generate_filters(field_type, placeholder, data, display, head){
 		    }
 		});
 		var filter_height = filter_count*50;
-		if (filter_height > 100){
-			filter_height = 100;
+		if (filter_height > 90){
+			filter_height = 200;
 		}
 		$('#'+placeholder+'_card').css("height",filter_height.toString()+"px");
 	
@@ -1226,20 +1255,14 @@ function generate_filters(field_type, placeholder, data, display, head){
 			}
 		    });
 		    var field_search = "";
-		    if (field_val.length > 0){
-			var str_field_val = field_val.map(x => encodeURI(escapeRegExp(String(x))));
-			
-			field_search = "&fq=("+encodeURI(escapeRegExp(field_type)).replace(/:/g,'%3A')+":"+str_field_val.join(" OR "+encodeURI(escapeRegExp(field_type))+":")+")";
-		    }
 		    localStorage.setItem(placeholder, field_search);
-		    localStorage.setItem(placeholder+"_val",field_val);
+		    localStorage.setItem(placeholder+"_val",JSON.stringify(field_val));
 		    localStorage.setItem("search_filter", "on");
 		    setup_labcas_search(localStorage.getItem('search'), "all", 0);
 		});
-	}
 }
 
-function generate_categories(field_id, data){
+function generate_categories(field_id){
 	$('#'+field_id).empty();
 	$("#filter_options").empty();
 	$.each(localStorage.getItem("filters").split(","), function(ind, head) {
@@ -1251,20 +1274,26 @@ function generate_categories(field_id, data){
 		var ids = localStorage.getItem(head+"_filters_id").split(",");
 		var displays = localStorage.getItem(head+"_filters_display").split(",");
 		var divs = localStorage.getItem(head+"_filters_div").split(",");
+		var facets = JSON.parse(localStorage.getItem("facets"));
+		console.log("FACETS");
+		console.log(facets);
 		$.each(ids, function(i, idhead) {
-			generate_filters(idhead,$.trim(divs[i]), data.facet_counts.facet_fields[idhead], $.trim(displays[i]), $.trim(head));
+			generate_filters(idhead,$.trim(divs[i]), facets[idhead.toLowerCase()], $.trim(displays[i]), $.trim(head));
 		});
 	});
 }
-function fill_collections_facets(data){
+function fill_collections_facets(){
 	//console.log(data);
-	
+    var facets = JSON.parse(localStorage.getItem("facets"));
+	if(!facets["datasettype"] || !facets["organ"] || !facets["site"]){
+	    return;
+    }
    	if (localStorage.getItem("search_filter") == "on" || (localStorage.getItem("search") && localStorage.getItem("search") != "*")){
 		$('#filter_reset').show();
 	}else{
 		$('#filter_reset').hide();
 	}
-	generate_categories("faceted_categories", data);
+	generate_categories("faceted_categories");
 	$("#faceted_categories").change(function(){
 		$.each(localStorage.getItem("filters").split(","), function(ind, head) {
 			$("."+head+"_card").hide();
@@ -1316,11 +1345,73 @@ function fill_collections_search(data){
     $('#loading_collection').hide(500);
 }
 
+function generate_biospecimen_site_facets(site) {
+    var facets = JSON.parse(localStorage.getItem("facets"));
+    if(!facets){
+        facets = {"site":{}};
+    }
+    if(!facets["site"]){
+        facets["site"] = {};
+    }
+    if(!facets["site"][site]){
+        facets["site"][site] = 0;
+    }
+    facets["site"][site] += 1;
+
+    localStorage.setItem("facets", JSON.stringify(facets))
+    fill_collections_facets();
+}
+
+function generate_biospecimen_genomics_facets(data) {
+    var facets = JSON.parse(localStorage.getItem("facets"));
+    if(!facets){
+        facets = {"datasettype":{}};
+    }
+    if(!facets["datasettype"]){
+        facets["datasettype"] = {};
+    }
+    facets["datasettype"]["genomics"] = data.length;
+    localStorage.setItem("facets", JSON.stringify(facets));
+    fill_collections_facets();
+}
+
+function generate_biospecimen_images_facets(data) {
+    var facets = JSON.parse(localStorage.getItem("facets"));
+    if(!facets){
+        facets = {"datasettype":{}};
+    }
+    if(!facets["datasettype"]){
+        facets["datasettype"] = {};
+    }
+    facets["datasettype"]["images"] = data.length;
+    localStorage.setItem("facets", JSON.stringify(facets));
+    fill_collections_facets();
+}
+
+function generate_biospecimen_organs_facets(data) {
+    var facets = JSON.parse(localStorage.getItem("facets"));
+    if(!facets){
+        facets = {"organ":{}};
+    }
+    if(!facets["organ"]){
+        facets["organ"] = {};
+    }
+
+    $.each(data, function(ind, org) {
+        o = org.organType.replace("Organs","");
+        if(!facets["organ"][o]){
+            facets["organ"][o] = 0;
+        }
+        facets["organ"][o] += 1;
+    });
+    localStorage.setItem("facets", JSON.stringify(facets))
+    fill_collections_facets();
+}
 
 function setup_labcas_search(query, divid, cpage){
     //console.log("Searching...");
 
-	var collection_filters = "";
+	/*var collection_filters = "";
 	var collection_facets = [];
 	$.each(localStorage.getItem("filters").split(","), function(ind, head) {
 		var divs = localStorage.getItem(head+"_filters_div").split(",");
@@ -1328,112 +1419,35 @@ function setup_labcas_search(query, divid, cpage){
 			collection_filters += localStorage.getItem($.trim(divhead));
 		});
 		collection_facets = collection_facets.concat(localStorage.getItem(head+"_filters_id").split(","));
-	});
+	});*/
+    $('#collection-table tbody').empty()
+    $('#participant-table tbody').empty();
+    $('#metadatadetails-table tbody').empty();
+    wait(1000);
 	var data_filters = "";
-    if (divid == "collections_search" || divid == "all"){
-		console.log(localStorage.getItem('environment')+"/data-access-api/collections/select?q="+query+""+collection_filters+"&wt=json&indent=true&start="+cpage*10);
-		$.ajax({
-			url: localStorage.getItem('environment')+"/data-access-api/collections/select?q="+query+""+collection_filters+"&wt=json&indent=true&sort=id%20asc&start="+cpage*10,	
-			beforeSend: function(xhr) {
-				if(Cookies.get('token') && Cookies.get('token') != "None"){
-					xhr.setRequestHeader("Authorization", "Bearer " + Cookies.get('token')); 
-				}
-			},
-			type: 'GET',
-			dataType: 'json',
-			success: function (data) {
-				fill_collections_search(data);
-			},
-			error: function(e){
-				if (!(localStorage.getItem("logout_alert") && localStorage.getItem("logout_alert") == "On")){
-                                   localStorage.setItem("logout_alert","On");
-					 alert("You are currently logged out. Redirecting you to log in.");
-				}
-				 window.location.replace("/clinical-ui/index.html");
-			 }
-		});
-		console.log("/data-access-api/files/select?q="+query+""+collection_filters+"&facet=true&facet.limit=-1&facet.field="+collection_facets.join("&facet.field=")+"&wt=json&rows=0");
-		console.log("HERE3");
-		console.log("data");
-		console.log(Cookies.get('token'));
-		$.ajax({
-			url: "/data-access-api/files/select?q="+query+""+collection_filters+"&facet=true&facet.limit=-1&facet.field="+collection_facets.join("&facet.field=")+"&wt=json&rows=0",
-			beforeSend: function(xhr) {
-				if(Cookies.get('token') && Cookies.get('token') != "None"){
-					xhr.setRequestHeader("Authorization", "Bearer " + Cookies.get('token')); 
-				}
-			},
-			type: 'GET',
-			dataType: 'json',
-			success: function (data) {
-				console.log("GOT HERE");
-				fill_collections_facets(data);
-			},
-			error: function (xhr, ajaxOptions, thrownError) {
-				console.log("RIGHTY");
-				console.log(xhr.responseText);
-				console.log(xhr.status);
-				console.log(thrownError);
-				if (!(localStorage.getItem("logout_alert") && localStorage.getItem("logout_alert") == "On")){
-                                   localStorage.setItem("logout_alert","On");
-				 alert("You are currently logged out. Redirecting you to log in.");
-				}
-				 window.location.replace("/clinical-ui/index.html");
-			 }
-		});
+    if (divid == "site_search" || divid == "all"){
+        localStorage.setItem("facets", false)
+
+        query_labcas_api(localStorage.getItem('environment')+"/clinicalCores", fill_clinicalcore_search);
+        query_labcas_api(localStorage.getItem('environment')+"/images", generate_biospecimen_images_facets);
+        query_labcas_api(localStorage.getItem('environment')+"/genomics", generate_biospecimen_genomics_facets);
+        query_labcas_api(localStorage.getItem('environment')+"/organs", generate_biospecimen_organs_facets);
+
     }
     if (divid == "datasets_search" || divid == "all"){
-	wait(1000);
-	console.log(localStorage.getItem('environment')+"/data-access-api/datasets/select?q=*:*"+collection_filters+"&facet=true&facet.limit=-1&facet.field="+collection_facets.join("&facet.field=")+"&wt=json&rows=0");
-        $.ajax({
-            url: localStorage.getItem('environment')+"/data-access-api/datasets/select?q="+query+""+collection_filters+"&wt=json&indent=true&start="+cpage*10,
-            beforeSend: function(xhr) {
-                if(Cookies.get('token') && Cookies.get('token') != "None"){
-					xhr.setRequestHeader("Authorization", "Bearer " + Cookies.get('token')); 
-				}
-            },
-            type: 'GET',
-            dataType: 'json',
-            processData: false,
-            success: function (data) {
-                fill_datasets_search(data);
-            },
-            error: function(e){
-		if (!(localStorage.getItem("logout_alert") && localStorage.getItem("logout_alert") == "On")){
-			   localStorage.setItem("logout_alert","On");
-			 alert("You are currently logged out. Redirecting you to log in.");
-		}
-                 window.location.replace("/clinical-ui/index.html");
-             }
-        });
+
+        var search = localStorage.getItem("search");
+        if (search == "*"){
+            localStorage.setItem("search_flag", "false");
+        }else{
+            localStorage.setItem("search_flag", "true");
+        }
+        query_labcas_api(localStorage.getItem('environment')+"/clinicalCores", fill_clinicalcore_participant);
+
     }
     if (divid == "files_search" || divid == "all"){
-		wait(1000);
-		$.ajax({
-			url: localStorage.getItem('environment')+"/data-access-api/files/select?q="+query+""+collection_filters+"&wt=json&indent=true&start="+cpage*10,
-			xhrFields: {
-					withCredentials: true
-			  },
-			beforeSend: function(xhr, settings) { 
-				if(Cookies.get('token') && Cookies.get('token') != "None"){
-					xhr.setRequestHeader("Authorization", "Bearer " + Cookies.get('token')); 
-				} 
-			},
-			dataType: 'json',
-			success: function (data) {
-				fill_files_search(data);
-				setup_labcas_analytics(query, collection_filters);
-			},
-			error: function(e){
-				if (!(localStorage.getItem("logout_alert") && localStorage.getItem("logout_alert") == "On")){
-                                   localStorage.setItem("logout_alert","On");
-				    alert("You are currently logged out. Redirecting you to log in.");
-				}
-				 window.location.replace("/clinical-ui/index.html");
-			 
-			 }
-		});
-
+        query_labcas_api(localStorage.getItem('environment')+"/specimens", fill_specimen_table);
+        query_labcas_api(localStorage.getItem('environment')+"/genomics", fill_genomic_table);
 	}
 }
 /* End Search Section */

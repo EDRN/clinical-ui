@@ -129,8 +129,8 @@
 	});
 	$( "#footer_template" ).load("/clinical-ui/templates.html #footer_template");
 	$( "#sidebar_placeholder" ).load("/clinical-ui/sidebar.html?13", );
-
-    	setup_labcas_data("collections","*:*");
+    localStorage.setItem("search_flag", "false");
+        setup_biospecimen_main_data("collections","*:*");
         window.operateEvents = {
             'click .view': function(e, value, row, index) {
                 info = JSON.stringify(row);

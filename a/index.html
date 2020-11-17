@@ -110,13 +110,13 @@
             <div class="content">
                 <div class="container-fluid">
                     <div class="row">
-                        <div class="col-lg-3 col-sm-6">
-                            <div class="card card-stats">
+                        <div class="col-lg-3 col-sm-6" id="participant_stat_template">
+                            <!--<div class="card card-stats">
                                 <div class="card-body ">
                                     <div class="row">
                                         <div class="col-5">
                                                 <img src="/clinical-ui/assets/img/participant.png" width=70 height=60/>
-                                                <!--<i class="nc-icon nc-app text-warning"></i>-->
+                                                
                                         </div>
                                         <div class="col-7">
                                             <div class="numbers">
@@ -126,10 +126,10 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div>-->
                         </div>
-                        <div class="col-lg-3 col-sm-6">
-                            <div class="card card-stats">
+                        <div class="col-lg-3 col-sm-6" id="organ_stat_template">
+                            <!--<div class="card card-stats">
                                 <div class="card-body ">
                                     <div class="row">
                                         <div class="col-5">
@@ -144,10 +144,10 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div>-->
                         </div>
-                        <div class="col-lg-3 col-sm-6">
-                            <div class="card card-stats">
+                        <div class="col-lg-3 col-sm-6" id="specimen_stat_template">
+                            <!--<div class="card card-stats">
                                 <div class="card-body ">
                                     <div class="row">
                                         <div class="col-5">
@@ -161,10 +161,10 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div>-->
                         </div>
-                        <div class="col-lg-3 col-sm-6">
-                            <div class="card card-stats">
+                        <div class="col-lg-3 col-sm-6" id="genomic_stat_template">
+                            <!--<div class="card card-stats">
                                 <div class="card-body ">
                                     <div class="row">
                                         <div class="col-5">
@@ -178,7 +178,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div>-->
                         </div>
                     </div>
 		   <div class="row">
@@ -348,6 +348,15 @@
 
 
 <script type="text/javascript">
+    //$( "#head_template" ).load("/clinical-ui/templates.html #head_template");
+    $( "#genomic_stat_template" ).load("/clinical-ui/templates.html #genomic_stat_template");
+    $( "#participant_stat_template" ).load("/clinical-ui/templates.html #participant_stat_template");
+    $( "#organ_stat_template" ).load("/clinical-ui/templates.html #organ_stat_template");
+    $( "#specimen_stat_template" ).load("/clinical-ui/templates.html #specimen_stat_template");
+
+    //$( "#footer_template" ).load("/clinical-ui/templates.html #footer_template");
+    //$( "#sidebar_placeholder" ).load("/clinical-ui/sidebar.html?8", );
+
     $(document).ready(function() {
     	initCookies();
         //setup_labcas_data("collectiondatasets",'id:"1.0_Athena-IHC4_with_Swedish_Breast_Cancer_Study"', 'id:1.0_Athena-IHC4_with_Swedish_Breast_Cancer_Study.*');
@@ -360,6 +369,7 @@
             $( "#username_placeholder_second" ).html(Cookies.get('user'));
 	    $(".sidebar .nav div").html("<br>");
         });
+
     });
 </script>
 

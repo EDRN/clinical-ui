@@ -28,6 +28,9 @@
                     	<div class="col-md-12">
 				<nav aria-label="breadcrumb">
 				  <ol id="breadcrumb" class="breadcrumb">
+					  <li id="breadcrumb_site" class="breadcrumb-item"></li>
+					  <li id="breadcrumb_participant" class="breadcrumb-item" aria-current="page"></li>
+					  <li id="breadcrumb_specimen" class="breadcrumb-item active" aria-current="page"></li>
 				  </ol>
 				</nav>
                     	</div>
@@ -37,11 +40,11 @@
                             <div class="card ">
                                 <div class="card-header">
                                     <h4 class="card-title"><div id="datasettitle"></div></h4>
-                                     <p class="card-category">Dataset Details</p>
+                                     <p class="card-category">Specimen Details</p>
                                 </div>
                                 <div class="card-body">
 				    <div class="table-responsive">
-					<table class="table" id="datasetdetails-table">
+					<table class="table" id="specimen-table">
 					    <tbody>
 						<center><img id="loading_dataset" class="collapse show" height="50px" width="50px" src="/clinical-ui/assets/img/loading.gif"></center>
 					    </tbody>
@@ -50,16 +53,7 @@
                                 </div>
                             </div>
                         </div>
-			<div id='children-datasets' style="display: none" class="col-md-12 ml-auto mr-auto">
-			    <div class="card card-tasks">
-				<div class="card-header ">
-				    <h4 class="card-title" id="files-title">Children Datasets</h4>
-				    
-				</div>
-				<div class="card-body" id="children-datasets-section">
-				</div>
-			    </div>
-			</div>
+
                         <div id='children-files' style="display: none" class="col-md-12 ml-auto mr-auto">
 			    <div class="card card-tasks">
 				<div class="card-header ">
@@ -160,7 +154,7 @@
     var dataset_id = "";
     $(document).ready(function() {
 	initCookies();
-
+	var get_var = get_url_vars();
 	$( "#head_template" ).load("/clinical-ui/templates.html #head_template");
         $( "#nav_template" ).load("/clinical-ui/templates.html?2 #nav_template", function() {
             $( "#username_placeholder_second" ).html(Cookies.get('user'));
@@ -174,26 +168,12 @@
         $( "#sidebar_placeholder" ).load("/clinical-ui/sidebar.html?8", );
 
 
-        var get_var = get_url_vars();
-	get_var["dataset_id"] = get_var["dataset_id"].replace(/\\\./g,'.');
-	dataset_id = get_var["dataset_id"];
 
-        setup_labcas_dataset_data("datasetfiles",'id:"'+get_var["dataset_id"]+'"', 'DatasetId:"'+get_var["dataset_id"]+'"', 0);
-        
-        var breadcrumb = '<li class="breadcrumb-item"><a href="/clinical-ui/m/index.html">Home</a></li>';
-	var data_split = get_var["dataset_id"].split("/");
-	var url_prefix = "";
-	for (i = 0; i < data_split.length; i++) {
-		if(i == 0){
-			breadcrumb += '<li class="breadcrumb-item active" aria-current="page"><a href="/clinical-ui/c/index.html?collection_id='+data_split[i]+'">'+data_split[i].replace(/_/g," ")+'</a></li>';
-		}else if (i == data_split.length -1){
-			breadcrumb += '<li class="breadcrumb-item active" aria-current="page">'+data_split[i].replace(/_/g," ")+'</li>';
-		}else{
-			breadcrumb += '<li class="breadcrumb-item active" aria-current="page"><a href="/clinical-ui/d/index.html?dataset_id='+data_split.slice(0,i+1).join("/")+'">'+data_split[i].replace(/_/g," ")+'</a></li>';
-		}
-	}
-	$('#breadcrumb').html(breadcrumb);
-							
+		Cookies.set("login_redirect", "/clinical-ui/m/index.html");
+		setup_specimen_detail(get_var["specimen_id"]);
+		$("#breadcrumb_participant").html("<a href='/clinical-ui/c/index.html?participant_id="+get_var["participant_id"]+"&site_id="+get_var["site_id"]+"&organ_id="+get_var["organ_id"]+"'>"+get_var["participant_id"]+"</a>");
+		$("#breadcrumb_site").html("<a href='/clinical-ui/f/index.html?site_id="+get_var["site_id"]+"&organ_id="+get_var["organ_id"]+"'>"+get_var["site_id"]+ " + " + get_var["organ_id"]+"</a>");
+		$("#breadcrumb_specimen").html(get_var["specimen_id"])
     });
 </script>
 

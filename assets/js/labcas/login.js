@@ -1,6 +1,6 @@
 Cookies.set("token", "None");
 $(document).ready(function(){
-$.getJSON( '/clinical-ui/assets/conf/environment.cfg?2', function(json) {
+$.getJSON( '/clinical-ui/assets/conf/environment.cfg?4', function(json) {
 	$.each( json, function( key, val ) {
 		console.log(key);
 		localStorage.setItem(key, val);
